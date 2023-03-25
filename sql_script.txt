@@ -1,0 +1,85 @@
+## Create Table on MySQL or PostgreSQL database Follow the SQL_Table.jpeg file;
+
+CREATE DATABASE office_management;
+
+CREATE TABLE employers(
+    id int,
+    name varchar(20),
+    role varchar(20),
+    salary decimal(18,2),
+    PRIMARY KEY (id)
+);
+
+INSERT INTO employers(id,name,role,salary) VALUES('5588','Mr Rahim','Area Coordinator','50000');
+INSERT INTO employers(id,name,role,salary) VALUES('6677','Mr Karim','Regional Coordinator','50000');
+
+CREATE TABLE Users(
+    id int,
+    name varchar(20),
+    phone varchar(20),
+    role varchar(20),
+    salary decimal(18,2),
+    employers_id int,
+    FOREIGN KEY (employers_id) REFERENCES employers(id)
+);
+
+INSERT INTO Users(id,name,phone,role,salary,employers_id) VALUES('7856','Mr Abul','02255666777','BR','25000','5588');
+INSERT INTO Users(id,name,phone,role,salary,employers_id) VALUES('7654','Mr Babul','01177555666','Supervisor','27500','6677');
+INSERT INTO Users(id,name,phone,role,salary,employers_id) VALUES('8768','Miss Jorina','02299000111','BR','40000','5588');
+INSERT INTO Users(id,name,phone,role,salary,employers_id) VALUES('5748','Mrs Morjina','01155886644','BR','38000','5588');
+INSERT INTO Users(id,name,phone,role,salary,employers_id) VALUES('5748','Mrs Morjina','01155886644','BR','38000','5588');
+
+## i) “select count(*) from users”, Write an optimized query against this.
+
+select count(*) from Users;
+select count(id) from Users;
+
+## ii) View all users and employers who get maximum salary from each group?
+
+select name, 'Users' as 'Table' from Users WHERE salary=(SELECT MAX(salary) FROM Users)
+UNION ALL
+select name, 'employers' as 'Table' from employers WHERE salary=(SELECT MAX(salary) FROM employers);
+
+## iii) You want to delete everything of Users, write a query.
+
+DELETE FROM Users;
+TRUNCATE TABLE Users;
+
+## iv) Get the second highest salary from the Users table and which users get them.
+
+SELECT name from Users WHERE salary=(SELECT max(salary) from Users WHERE salary<(SELECT MAX(salary) FROM Users));
+
+## v) How to get distinct records from the Names from users table without using distinct keyword.
+
+SELECT name FROM Users GROUP BY name;
+
+## vi) How to find the count of duplicate rows from a table?
+
+SELECT *,COUNT(*) as Repeated from Users GROUP by id,name,phone,role,salary,employers_id HAVING COUNT(*)>1;
+
+## vii) Remove duplicates from users but keep one.
+
+WITH cte AS (
+    SELECT 
+        ROW_NUMBER() OVER (
+            PARTITION BY 
+                id, 
+                name, 
+                phone, 
+                role,
+            	salary,
+            	employers_id
+            ORDER BY 
+                id, 
+                name, 
+                phone, 
+                role,
+            	salary,
+            	employers_id
+        ) row_num
+     FROM 
+        Users
+)
+DELETE FROM cte WHERE row_num > 1;
+
+
