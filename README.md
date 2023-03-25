@@ -1,0 +1,1 @@
+# mysql-financial-sample-script-assessment-for-certification-aiquest
